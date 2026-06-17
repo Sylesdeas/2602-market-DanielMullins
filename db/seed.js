@@ -67,4 +67,8 @@ async function seed() {
       products[4].id,
     ],
   );
+
+  console.log("🌱 Database seeded.");
 }
+
+await db.end();
