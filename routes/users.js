@@ -19,15 +19,13 @@ router.post("/register", async (req, res, next) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res
-        .status(400)
-        .send({ error: "Username and password are required" });
+      return res.status(400).send({ error: "Username and password required" });
     }
 
     const user = await createUser({ username, password });
     const token = createToken(user);
 
-    res.send({ token });
+    res.status(201).send(token);
   } catch (error) {
     next(error);
   }
@@ -38,9 +36,7 @@ router.post("/login", async (req, res, next) => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      return res
-        .status(400)
-        .send({ error: "Username and password are required" });
+      return res.status(400).send({ error: "Username and password required" });
     }
 
     const user = await getUserByUsername(username);
@@ -57,7 +53,7 @@ router.post("/login", async (req, res, next) => {
 
     const token = createToken(user);
 
-    res.send({ token });
+    res.send(token);
   } catch (error) {
     next(error);
   }

@@ -30,25 +30,33 @@ export async function getOrderById(id) {
   return rows[0];
 }
 
-export async function addProductToOrder(orderId, productId, quantity) {
+export async function addProductToOrder({ orderId, productId, quantity }) {
   const { rows } = await db.query(
     `
-      INSERT INTO orders_products (order_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING *;
+    INSERT INTO orders_products (order_id, product_id, quantity)
+    VALUES ($1, $2, $3)
+    ON CONFLICT (order_id, product_id)
+    DO UPDATE SET quantity = orders_products.quantity + EXCLUDED.quantity
+    RETURNING *;
     `,
     [orderId, productId, quantity],
   );
+
   return rows[0];
 }
 
 export async function getProductsByOrderId(orderId) {
   const { rows } = await db.query(
     `
-      SELECT products.*, orders_products.quantity FROM products
-      JOIN orders_products ON products.id = orders_products.product_id
-      WHERE orders_products.order_id = $1;
-      ORDER BY products.id;
+    SELECT products.*, orders_products.quantity
+    FROM products
+    JOIN orders_products
+      ON products.id = orders_products.product_id
+    WHERE orders_products.order_id = $1
+    ORDER BY products.id;
     `,
     [orderId],
   );
+
   return rows;
 }
